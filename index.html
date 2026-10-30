@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saathi - Senior Companion</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b5cad">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#fffaf0;--ink:#1a1a1a;--blue:#0b5cad;--red:#c62828;--green:#2e7d32;--card:#fff;}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;font-size:20px;background:var(--bg);color:var(--ink);padding-bottom:90px}
+body.big{font-size:26px}
+header{background:var(--blue);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1000}
+header h1{margin:0;font-size:1.3em}
+header button{background:#fff;color:var(--blue);border:0;border-radius:10px;padding:10px 14px;font-size:.9em;font-weight:bold;margin-left:6px}
+.page{display:none;padding:14px}
+.page.active{display:block}
+.card{background:var(--card);border:2px solid #ddd;border-radius:14px;padding:14px;margin:12px 0}
+button,input,select,textarea{font-size:1em;font-family:inherit}
+input,select,textarea{width:100%;padding:12px;margin:6px 0;border:2px solid #888;border-radius:10px}
+.btn{display:block;width:100%;min-height:60px;border:0;border-radius:14px;background:var(--blue);color:#fff;font-weight:bold;margin:8px 0;padding:12px}
+.btn.green{background:var(--green)}
+.btn.red{background:var(--red)}
+.btn.grey{background:#555}
+.small{padding:8px 14px;border-radius:8px;border:0;background:#555;color:#fff;margin:4px 4px 0 0}
+#sos{width:100%;height:200px;border-radius:50%;max-width:260px;display:block;margin:10px auto;background:var(--red);color:#fff;border:8px solid #7f0000;font-size:2em;font-weight:bold}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#fff;border-top:3px solid var(--blue);z-index:1000}
+nav button{flex:1;border:0;background:#fff;padding:8px 2px;font-size:.7em;font-weight:bold;color:#333}
+nav button span{display:block;font-size:1.8em}
+nav button.on{background:#dbeafe;color:var(--blue)}
+#map{height:55vh;border-radius:14px;border:2px solid #888}
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:3000;align-items:center;justify-content:center;padding:20px}
+#overlay .box{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:480px;text-align:center}
+#overlay h2{margin-top:0}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🤝 Saathi</h1>
+  <div><button onclick="toggleBig()">A+</button><button onclick="toggleLang()" id="langBtn">हिन्दी</button></div>
+</header>
+
+<!-- HOME -->
+<section class="page active" id="p-home">
+  <h2 id="hello"></h2>
+  <button id="sos" onclick="startSOS()">🆘<br>SOS</button>
+  <p style="text-align:center">Press only in an emergency</p>
+  <button class="btn green" onclick="imOk()" data-i="imok">✅ I am OK today</button>
+  <p id="okStatus" style="text-align:center"></p>
+
+  <div class="card">
+    <h3>📞 Emergency contacts</h3>
+    <div id="contactList"></div>
+    <button class="btn" onclick="addContact()">+ Add contact</button>
+  </div>
+  <div class="card">
+    <h3>⚙️ My details</h3>
+    <button class="btn grey" onclick="setName()">Set my name</button>
+    <button class="btn grey" onclick="askNotif()">Allow notifications</button>
+  </div>
+</section>
+
+<!-- CALENDAR -->
+<section class="page" id="p-cal">
+  <h2 data-i="calendar">📅 Reminders</h2>
+  <div class="card">
+    <label>What is it for?</label>
+    <select id="rType">
+      <option value="💰|Pension day">💰 Pension day</option>
+      <option value="🩺|Medical check-up">🩺 Medical check-up</option>
+      <option value="💊|Take medicine">💊 Take medicine</option>
+      <option value="🛒|Buy more medicines">🛒 Buy more medicines</option>
+      <option value="📄|Welfare scheme">📄 Welfare scheme</option>
+      <option value="⭐|Special reminder">⭐ Special reminder</option>
+    </select>
+    <label>Extra note (optional)</label>
+    <input id="rNote" placeholder="e.g. BP tablet after breakfast">
+    <label>Date and time</label>
+    <input type="datetime-local" id="rWhen">
+    <label>Repeat</label>
+    <select id="rRep">
+      <option value="none">Only once</option>
+      <option value="daily">Every day</option>
+      <option value="weekly">Every week</option>
+      <option value="monthly">Every month</option>
+    </select>
+    <button class="btn green" onclick="addRem()">Save reminder</button>
+  </div>
+  <div id="remList"></div>
+</section>
+
+<!-- MAP -->
+<section class="page" id="p-map">
+  <h2 data-i="map">🗺️ My Map</h2>
+  <div id="map"></div>
+  <button class="btn green" onclick="goHome()">🏠 Take me home</button>
+  <div class="row">
+    <button class="btn" onclick="setHome()">Set this as my home</button>
+    <button class="btn" onclick="savePlace()">Save this place</button>
+  </div>
+  <button class="btn grey" onclick="shareLoc()">📤 Share my location with family</button>
+  <div class="card"><h3>📍 My daily places</h3><div id="placeList"></div></div>
+</section>
+
+<!-- VISITS -->
+<section class="page" id="p-vis">
+  <h2 data-i="visits">🧑‍⚕️ Volunteer Visits</h2>
+  <div class="card">
+    <h3>My volunteer</h3>
+    <p id="volInfo"></p>
+    <button class="btn grey" onclick="setVol()">Set volunteer details</button>
+    <button class="btn" onclick="callVol()">📞 Call volunteer</button>
+  </div>
+  <div class="card">
+    <h3>Add visit update (volunteer fills this)</h3>
+    <input id="vBP" placeholder="Blood pressure e.g. 130/85">
+    <select id="vMood">
+      <option>😀 Happy</option><option>🙂 Fine</option><option>😐 Quiet</option><option>😟 Worried</option><option>🤒 Unwell</option>
+    </select>
+    <textarea id="vNote" rows="3" placeholder="Notes: food, sleep, medicines taken, needs..."></textarea>
+    <button class="btn green" onclick="addLog()">Save visit update</button>
+  </div>
+  <div id="logList"></div>
+</section>
+
+<!-- TOGETHER -->
+<section class="page" id="p-tog">
+  <h2 data-i="together">👥 Together</h2>
+  <h3>Weekly Day Camps</h3>
+  <div id="eventList"></div>
+  <h3>My friends</h3>
+  <div id="friendList"></div>
+  <button class="btn" onclick="addFriend()">+ Add a friend</button>
+</section>
+
+<nav>
+  <button class="on" onclick="go('home',this)"><span>🏠</span><b data-i="home">Home</b></button>
+  <button onclick="go('cal',this)"><span>📅</span><b data-i="calendar">Reminders</b></button>
+  <button onclick="go('map',this)"><span>🗺️</span><b data-i="map">Map</b></button>
+  <button onclick="go('vis',this)"><span>🧑‍⚕️</span><b data-i="visits">Visits</b></button>
+  <button onclick="go('tog',this)"><span>👥</span><b data-i="together">Together</b></button>
+</nav>
+
+<div id="overlay"><div class="box" id="obox"></div></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ---------- helpers & storage ---------- */
+const $ = s => document.querySelector(s);
+const KEY = 'saathi_v1';
+let S = Object.assign({name:'',contacts:[],reminders:[],home:null,places:[],logs:[],
+  vol:{name:'',phone:'',next:''},friends:[],joined:[],lastOk:'',trail:[],lang:'en',big:false},
+  JSON.parse(localStorage.getItem(KEY) || '{}'));
+const save = () => localStorage.setItem(KEY, JSON.stringify(S));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+const toLocalISO = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const fmt = s => new Date(s).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+
+/* ---------- language ---------- */
+const TXT = {
+  en:{home:'Home',calendar:'Reminders',map:'Map',visits:'Visits',together:'Together',imok:'✅ I am OK today',hello:'Hello'},
+  hi:{home:'होम',calendar:'याद दिलाना',map:'नक्शा',visits:'मुलाक़ात',together:'साथ',imok:'✅ मैं ठीक हूँ',hello:'नमस्ते'}
+};
+function applyLang(){
+  document.querySelectorAll('[data-i]').forEach(e=>{
+    const t = TXT[S.lang][e.dataset.i];
+    if(t){ const hasIcon = /^[^\w\u0900-\u097F]/.test(e.textContent.trim()) && e.tagName!=='B';
+      e.textContent = (e.tagName==='B') ? t : (e.textContent.split(' ')[0] + ' ' + t.replace(/^✅ /,'')); }
+  });
+  $('#imokFix') ;
+  $('#langBtn').textContent = S.lang==='en' ? 'हिन्दी' : 'English';
+  $('#hello').textContent = TXT[S.lang].hello + (S.name ? ', ' + S.name : '') + ' 🙏';
+  document.documentElement.lang = S.lang;
+}
+function toggleLang(){ S.lang = S.lang==='en' ? 'hi' : 'en'; save(); applyLang(); }
+function toggleBig(){ S.big = !S.big; save(); document.body.classList.toggle('big', S.big); }
+
+/* ---------- navigation ---------- */
+function go(p, btn){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  $('#p-'+p).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  if(p==='map') initMap();
+  window.scrollTo(0,0);
+}
+
+/* ---------- sound, speech, popups ---------- */
+function beep(n=4){
+  try{
+    const a = new (window.AudioContext||window.webkitAudioContext)();
+    for(let i=0;i<n;i++){
+      const o=a.createOscillator(), g=a.createGain();
+      o.connect(g); g.connect(a.destination); o.frequency.value=880; g.gain.value=.4;
+      o.start(a.currentTime+i*.6); o.stop(a.currentTime+i*.6+.4);
+    }
+  }catch(e){}
+}
+function speak(t){ try{ const u=new SpeechSynthesisUtterance(t); u.lang=S.lang==='hi'?'hi-IN':'en-IN'; speechSynthesis.speak(u);}catch(e){} }
+function popup(title, body, buttons){
+  $('#obox').innerHTML = `<h2>${title}</h2><p>${body}</p>` +
+    buttons.map((b,i)=>`<button class="btn ${b.cls||''}" id="pb${i}">${b.label}</button>`).join('');
+  buttons.forEach((b,i)=>{ $('#pb'+i).onclick = () => { if(b.close!==false) closePopup(); if(b.fn) b.fn(); }; });
+  $('#overlay').style.display='flex';
+}
+function closePopup(){ $('#overlay').style.display='none'; }
+function askNotif(){ if('Notification' in window) Notification.requestPermission().then(r=>alert('Notifications: '+r)); else alert('Not supported on this browser'); }
+
+/* ---------- HOME: name, contacts, I am OK ---------- */
+function setName(){ const n=prompt('Your name?', S.name); if(n!==null){ S.name=n.trim(); save(); applyLang(); } }
+function addContact(){
+  const name=prompt('Contact name (e.g. Son Rahul)'); if(!name) return;
+  const phone=prompt('Phone number with country code (e.g. +919876543210)'); if(!phone) return;
+  S.contacts.push({id:uid(), name:name.trim(), phone:phone.trim()}); save(); renderContacts();
+}
+function delContact(id){ S.contacts=S.contacts.filter(c=>c.id!==id); save(); renderContacts(); }
+function renderContacts(){
+  $('#contactList').innerHTML = S.contacts.map(c=>
+    `<div><b>${esc(c.name)}</b> ${esc(c.phone)}<br><button class="small" onclick="delContact('${c.id}')">Remove</button></div><hr>`
+  ).join('') || '<p>No contacts yet. Add one so SOS can work.</p>';
+}
+function imOk(){
+  S.lastOk = new Date().toISOString(); save(); renderOk();
+  speak('Thank you. Your family will know you are fine.');
+  if(S.contacts[0]){
+    const msg = `${S.name||'I'} am OK today. - Saathi`;
+    if(confirm('Tell '+S.contacts[0].name+' you are OK by message?')) location.href='sms:'+S.contacts[0].phone+'?body='+encodeURIComponent(msg);
+  }
+}
+function renderOk(){ $('#okStatus').textContent = S.lastOk ? 'Last check-in: '+new Date(S.lastOk).toLocaleString('en-IN') : 'You have not checked in yet today.'; }
+
+/* ---------- LOCATION (runs from app start) ---------- */
+let cur=null, map=null, meMarker=null, homeMarker=null, trailLine=null, firstFix=true;
+function startWatch(){
+  if(!navigator.geolocation){ return; }
+  navigator.geolocation.watchPosition(p=>{
+    cur = {lat:p.coords.latitude, lon:p.coords.longitude};
+    const last = S.trail[S.trail.length-1];
+    if(!last || Date.now()-last.t > 60000){ S.trail.push({t:Date.now(),lat:cur.lat,lon:cur.lon}); if(S.trail.length>500) S.trail.shift(); save(); }
+    updateMe();
+  }, e=>console.log('GPS:',e.message), {enableHighAccuracy:true, maximumAge:10000});
+}
+function mapsLink(){ return cur ? `https://maps.google.com/?q=${cur.lat},${cur.lon}` : ''; }
+
+/* ---------- SOS ---------- */
+let sosTimer=null;
+function startSOS(){
+  if(!S.contacts.length){ alert('Please add an emergency contact first.'); return; }
+  let n=5;
+  const show=()=>popup('🆘 Sending alert in '+n, 'Tap CANCEL if this was a mistake.', [{label:'CANCEL',cls:'grey',fn:()=>clearInterval(sosTimer)}]);
+  show(); beep(2);
+  sosTimer=setInterval(()=>{ n--; if(n<=0){ clearInterval(sosTimer); sendSOS(); } else show(); },1000);
+}
+function sendSOS(){
+  const msg = `EMERGENCY! ${S.name||'I'} need help now. My location: ${mapsLink()||'(location not available)'}`;
+  beep(6); speak('Emergency alert sent');
+  const list = S.contacts.map(c=>
+    `<div class="card"><b>${esc(c.name)}</b>
+     <a class="btn red" href="tel:${esc(c.phone)}">📞 Call</a>
+     <a class="btn" href="sms:${esc(c.phone)}?body=${encodeURIComponent(msg)}">💬 Send SMS</a></div>`).join('');
+  $('#obox').innerHTML = `<h2>🆘 Alert ready</h2><p>Tap Send SMS for each person, or Call.</p>${list}<button class="btn grey" onclick="closePopup()">Close</button>`;
+  $('#overlay').style.display='flex';
+  setTimeout(()=>{ location.href='sms:'+S.contacts[0].phone+'?body='+encodeURIComponent(msg); }, 800);
+}
+
+/* ---------- REMINDERS ---------- */
+function addRem(){
+  const [icon,title] = $('#rType').value.split('|');
+  const when = $('#rWhen').value;
+  if(!when){ alert('Please choose a date and time.'); return; }
+  const note = $('#rNote').value.trim();
+  S.reminders.push({id:uid(), icon, title: title + (note ? ' - '+note : ''), when, rep: $('#rRep').value});
+  save(); renderRem(); $('#rNote').value=''; alert('Saved! The alarm will ring at that time.');
+}
+function delRem(id){ S.reminders=S.reminders.filter(r=>r.id!==id); save(); renderRem(); }
+function renderRem(){
+  const l = S.reminders.slice().sort((a,b)=>a.when.localeCompare(b.when));
+  $('#remList').innerHTML = l.map(r=>
+    `<div class="card"><b>${r.icon} ${esc(r.title)}</b><br>${fmt(r.when)} ${r.rep!=='none'?'· repeats '+r.rep:''}<br>
+     <button class="small" onclick="delRem('${r.id}')">Delete</button></div>`
+  ).join('') || '<p>No reminders yet.</p>';
+}
+function nextDate(s, rep){
+  const d = new Date(s);
+  if(rep==='daily') d.setDate(d.getDate()+1);
+  if(rep==='weekly') d.setDate(d.getDate()+7);
+  if(rep==='monthly') d.setMonth(d.getMonth()+1);
+  return toLocalISO(d);
+}
+function checkReminders(){
+  const now = new Date();
+  S.reminders.slice().forEach(r=>{
+    if(new Date(r.when) <= now){
+      if(r.rep==='none') S.reminders = S.reminders.filter(x=>x.id!==r.id);
+      else { let w=r.when; while(new Date(w)<=now) w=nextDate(w,r.rep); r.when=w; }
+      save(); renderRem(); fireReminder(r);
+    }
+  });
+}
+function fireReminder(r){
+  beep(5); speak('Reminder. ' + r.title);
+  if('Notification' in window && Notification.permission==='granted') new Notification('Saathi reminder', {body: r.icon+' '+r.title});
+  popup(r.icon+' Reminder', `<span style="font-size:1.3em">${esc(r.title)}</span>`, [
+    {label:'✅ Done', cls:'green'},
+    {label:'⏰ Remind me in 10 minutes', cls:'grey', fn:()=>{
+      const d=new Date(Date.now()+600000);
+      S.reminders.push({id:uid(),icon:r.icon,title:r.title,when:toLocalISO(d),rep:'none'}); save(); renderRem(); }}
+  ]);
+}
+
+/* ---------- MAP ---------- */
+function initMap(){
+  if(map){ setTimeout(()=>map.invalidateSize(),100); return; }
+  const start = S.home ? [S.home.lat,S.home.lon] : cur ? [cur.lat,cur.lon] : [20.59,78.96];
+  map = L.map('map').setView(start, (S.home||cur) ? 16 : 5);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+  trailLine = L.polyline([], {color:'#0b5cad', weight:5}).addTo(map);
+  drawHome(); drawPlaces(); updateMe(); renderPlaces();
+}
+function updateMe(){
+  if(!map || !cur) return;
+  if(!meMarker) meMarker = L.circleMarker([cur.lat,cur.lon],{radius:11,color:'#fff',weight:3,fillColor:'#c62828',fillOpacity:1}).addTo(map).bindPopup('You are here');
+  else meMarker.setLatLng([cur.lat,cur.lon]);
+  const today = new Date().toDateString();
+  trailLine.setLatLngs(S.trail.filter(p=>new Date(p.t).toDateString()===today).map(p=>[p.lat,p.lon]));
+  if(firstFix){ map.setView([cur.lat,cur.lon],16); firstFix=false; }
+}
+function drawHome(){
+  if(!map || !S.home) return;
+  if(homeMarker) map.removeLayer(homeMarker);
+  homeMarker = L.marker([S.home.lat,S.home.lon],{icon:L.divIcon({html:'<div style="font-size:34px">🏠</div>',className:'',iconSize:[34,34]})}).addTo(map).bindPopup('My home');
+}
+function setHome(){
+  if(!cur){ alert('Waiting for your location. Please allow location access.'); return; }
+  S.home={lat:cur.lat,lon:cur.lon}; save(); drawHome(); alert('Home saved!');
+}
+function goHome(){
+  if(!S.home){ alert('First stand at your home and press "Set this as my home".'); return; }
+  window.open(`https://www.google.com/maps/dir/?api=1&destination=${S.home.lat},${S.home.lon}&travelmode=walking`);
+}
+function savePlace(){
+  if(!cur){ alert('Waiting for your location.'); return; }
+  const name=prompt('Name this place (e.g. Park, Temple, Market)'); if(!name) return;
+  S.places.push({id:uid(),name:name.trim(),lat:cur.lat,lon:cur.lon}); save(); drawPlaces(); renderPlaces();
+}
+function drawPlaces(){
+  if(!map) return;
+  S.places.forEach(p=>{ if(!p._m) { L.marker([p.lat,p.lon]).addTo(map).bindPopup(esc(p.name)); } });
+}
+function renderPlaces(){
+  $('#placeList').innerHTML = S.places.map(p=>
+    `<div><b>📍 ${esc(p.name)}</b><br>
+     <button class="small" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}&travelmode=walking')">Go there</button>
+     <button class="small" onclick="delPlace('${p.id}')">Remove</button></div><hr>`
+  ).join('') || '<p>No saved places yet.</p>';
+}
+function delPlace(id){ S.places=S.places.filter(p=>p.id!==id); save(); renderPlaces(); alert('Removed. Reload the page to refresh the map pins.'); }
+function shareLoc(){
+  if(!cur){ alert('Waiting for your location.'); return; }
+  const text = `${S.name||'I'} - my location now: ${mapsLink()}`;
+  if(navigator.share) navigator.share({text}).catch(()=>{});
+  else window.open('https://wa.me/?text='+encodeURIComponent(text));
+}
+
+/* ---------- VOLUNTEER VISITS ---------- */
+function setVol(){
+  const n=prompt('Volunteer name', S.vol.name); if(n===null) return;
+  const p=prompt('Volunteer phone (with +91)', S.vol.phone); if(p===null) return;
+  const d=prompt('Next visit date (e.g. 2026-11-07)', S.vol.next); if(d===null) return;
+  S.vol={name:n.trim(),phone:p.trim(),next:d.trim()}; save(); renderVol();
+}
+function callVol(){ if(S.vol.phone) location.href='tel:'+S.vol.phone; else alert('Add volunteer details first.'); }
+function renderVol(){
+  $('#volInfo').innerHTML = S.vol.name ? `<b>${esc(S.vol.name)}</b> · ${esc(S.vol.phone)}<br>Next visit: <b>${esc(S.vol.next||'not set')}</b>` : 'No volunteer assigned yet.';
+  $('#logList').innerHTML = S.logs.slice().reverse().map(l=>
+    `<div class="card"><b>${new Date(l.t).toLocaleDateString('en-IN',{dateStyle:'medium'})}</b> · ${esc(l.mood)}<br>BP: ${esc(l.bp||'-')}<br>${esc(l.note||'')}</div>`
+  ).join('');
+}
+function addLog(){
+  S.logs.push({t:Date.now(), bp:$('#vBP').value, mood:$('#vMood').value, note:$('#vNote').value});
+  save(); $('#vBP').value=''; $('#vNote').value=''; renderVol(); alert('Visit update saved.');
+}
+
+/* ---------- TOGETHER: day camps and friends ---------- */
+const EVENTS = [
+  {id:'e1', title:'Sunday Smiles Day Camp', when:'Every Sunday, 10:00 AM', place:'Community Hall', about:'Games, music, tea and conversation'},
+  {id:'e2', title:'Learn-a-Skill Morning', when:'Every Wednesday, 10:00 AM', place:'Local school (with children)', about:'Craft, phone skills, storytelling with kids'},
+  {id:'e3', title:'Talent and Talk Evening', when:'Every Friday, 5:00 PM', place:'Community Hall', about:'Sing, perform, share stories'}
+];
+function nextWeekday(day,h){ const d=new Date(); d.setHours(h,0,0,0); d.setDate(d.getDate()+((day+7-d.getDay())%7||7)); return toLocalISO(d); }
+function joinEvent(id){
+  if(S.joined.includes(id)) return;
+  S.joined.push(id);
+  const map2={e1:[0,10],e2:[3,10],e3:[5,17]}, ev=EVENTS.find(e=>e.id===id), [day,h]=map2[id];
+  S.reminders.push({id:uid(),icon:'👥',title:ev.title+' at '+ev.place,when:nextWeekday(day,h-1),rep:'weekly'});
+  save(); renderTog(); renderRem(); alert('You joined! A weekly reminder was added.');
+}
+function addFriend(){
+  const n=prompt('Friend name'); if(!n) return; const p=prompt('Friend phone (with +91)'); if(!p) return;
+  S.friends.push({id:uid(),name:n.trim(),phone:p.trim()}); save(); renderTog();
+}
+function delFriend(id){ S.friends=S.friends.filter(f=>f.id!==id); save(); renderTog(); }
+function renderTog(){
+  $('#eventList').innerHTML = EVENTS.map(e=>
+    `<div class="card"><b>${e.title}</b><br>🕙 ${e.when}<br>📍 ${e.place}<br>${e.about}
+     <button class="btn ${S.joined.includes(e.id)?'grey':'green'}" onclick="joinEvent('${e.id}')">${S.joined.includes(e.id)?'✔ Joined':'Join'}</button></div>`
+  ).join('');
+  $('#friendList').innerHTML = S.friends.map(f=>
+    `<div class="card"><b>${esc(f.name)}</b><br>
+     <a class="btn" href="tel:${esc(f.phone)}">📞 Call</a>
+     <a class="btn green" href="https://wa.me/${esc(f.phone.replace(/\D/g,''))}">💬 WhatsApp</a>
+     <button class="small" onclick="delFriend('${f.id}')">Remove</button></div>`
+  ).join('') || '<p>Add friends you meet at the Day Camps.</p>';
+}
+
+/* ---------- START ---------- */
+document.body.classList.toggle('big', S.big);
+renderContacts(); renderOk(); renderRem(); renderVol(); renderTog(); applyLang();
+startWatch();
+setInterval(checkReminders, 15000); checkReminders();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(e => console.log('SW failed', e));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "Saathi - Senior Companion",
+  "short_name": "Saathi",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fffaf0",
+  "theme_color": "#0b5cad",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

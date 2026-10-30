@@ -1,0 +1,9 @@
+{
+  "contacts": [{"name": "Son Rahul", "phone": "+919000000001"}],
+  "reminders": [
+    {"icon": "💰", "title": "Pension day", "when": "2026-11-01T09:00", "rep": "monthly"},
+    {"icon": "💊", "title": "Take medicine - BP tablet", "when": "2026-11-01T08:00", "rep": "daily"}
+  ],
+  "volunteer": {"name": "Priya", "phone": "+919000000002", "next": "2026-11-07"},
+  "visitLog": [{"bp": "130/85", "mood": "Fine", "note": "Ate well, took medicines"}]
+}
