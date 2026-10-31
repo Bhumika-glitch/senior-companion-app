@@ -28,7 +28,7 @@ No server: SOS opens the phone's SMS and the user taps Send. Alarms ring while t
 `python3 -m http.server 8000` then open http://localhost:8000
 
 ## AI Disclosure
-Claude (AI assistant) wrote the app code (about __%) and the first draft of the Hindi and Telugu text. The team created the idea and features, tested on phones and reviewed the text. No AI runs inside the app.
+Claude (AI assistant) wrote the app code (about 85%) for codes and the first draft of the Hindi and Telugu text. The team created the idea and features, tested on phones, experimented, PPTs, videos and reviewed the text. No AI runs inside the app.
 
 ## License
 MIT
