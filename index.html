@@ -5,181 +5,313 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Saathi - Senior Companion</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0b5cad">
+<meta name="theme-color" content="#1f8a70">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root{--bg:#fffaf0;--ink:#1a1a1a;--blue:#0b5cad;--red:#c62828;--green:#2e7d32;--card:#fff;}
+:root{--bg:#fff8ef;--ink:#2b2b2b;--primary:#1f8a70;--primary-d:#156753;--soft:#e3f4ee;--accent:#ff9f43;--sos:#e5484d;--card:#fff;--line:#f0e4d3}
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;font-size:20px;background:var(--bg);color:var(--ink);padding-bottom:90px}
-body.big{font-size:26px}
-header{background:var(--blue);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1000}
-header h1{margin:0;font-size:1.3em}
-header button{background:#fff;color:var(--blue);border:0;border-radius:10px;padding:10px 14px;font-size:.9em;font-weight:bold;margin-left:6px}
-.page{display:none;padding:14px}
+body{margin:0;font-family:"Segoe UI","Noto Sans","Noto Sans Telugu","Noto Sans Devanagari",system-ui,sans-serif;font-size:20px;line-height:1.45;background:var(--bg);color:var(--ink);padding-bottom:110px}
+body.big{font-size:25px}
+header{background:linear-gradient(135deg,#1f8a70,#2fb08f);color:#fff;padding:14px 16px;border-radius:0 0 26px 26px;position:sticky;top:0;z-index:1000;display:flex;justify-content:space-between;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+header h1{margin:0;font-size:1.25em}
+.tools{display:flex;gap:8px;align-items:center}
+header select{width:auto;margin:0;padding:8px;border-radius:12px;border:0;font-size:.8em;background:#fff;color:var(--primary-d);font-weight:700}
+header button{background:#fff;color:var(--primary-d);border:0;border-radius:12px;padding:8px 12px;font-weight:800;font-size:.85em}
+.page{display:none;padding:16px}
 .page.active{display:block}
-.card{background:var(--card);border:2px solid #ddd;border-radius:14px;padding:14px;margin:12px 0}
+h2{margin:8px 0 12px;font-size:1.3em}
+h3{margin:4px 0 10px}
+.card{background:var(--card);border-radius:22px;padding:16px;margin:14px 0;box-shadow:0 4px 16px rgba(120,90,40,.10);border:1px solid var(--line)}
 button,input,select,textarea{font-size:1em;font-family:inherit}
-input,select,textarea{width:100%;padding:12px;margin:6px 0;border:2px solid #888;border-radius:10px}
-.btn{display:block;width:100%;min-height:60px;border:0;border-radius:14px;background:var(--blue);color:#fff;font-weight:bold;margin:8px 0;padding:12px}
-.btn.green{background:var(--green)}
-.btn.red{background:var(--red)}
-.btn.grey{background:#555}
-.small{padding:8px 14px;border-radius:8px;border:0;background:#555;color:#fff;margin:4px 4px 0 0}
-#sos{width:100%;height:200px;border-radius:50%;max-width:260px;display:block;margin:10px auto;background:var(--red);color:#fff;border:8px solid #7f0000;font-size:2em;font-weight:bold}
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#fff;border-top:3px solid var(--blue);z-index:1000}
-nav button{flex:1;border:0;background:#fff;padding:8px 2px;font-size:.7em;font-weight:bold;color:#333}
-nav button span{display:block;font-size:1.8em}
-nav button.on{background:#dbeafe;color:var(--blue)}
-#map{height:55vh;border-radius:14px;border:2px solid #888}
-#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:3000;align-items:center;justify-content:center;padding:20px}
-#overlay .box{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:480px;text-align:center}
+input,select,textarea{width:100%;padding:12px;margin:6px 0;border:2px solid #d9cbb5;border-radius:14px;background:#fff}
+label{font-weight:600}
+.btn{display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;width:100%;min-height:60px;border:0;border-radius:18px;background:var(--primary);color:#fff;font-weight:700;margin:8px 0;padding:12px;box-shadow:0 3px 0 var(--primary-d)}
+.btn:active{transform:translateY(2px);box-shadow:none}
+.btn.orange{background:var(--accent);color:#3a2300;box-shadow:0 3px 0 #d57d20}
+.btn.red{background:var(--sos);box-shadow:0 3px 0 #b72a2f}
+.btn.soft{background:var(--soft);color:var(--primary-d);box-shadow:0 3px 0 #bfe0d5}
+.small{padding:8px 14px;border-radius:12px;border:0;background:var(--soft);color:var(--primary-d);font-weight:700;margin:6px 6px 0 0}
+#sos{width:230px;height:230px;border-radius:50%;display:block;margin:14px auto;background:radial-gradient(circle at 35% 30%,#ff7b7f,#e5484d 60%,#b72a2f);color:#fff;border:8px solid #ffd9da;font-size:2.2em;font-weight:800;box-shadow:0 10px 30px rgba(229,72,77,.45);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(229,72,77,.45)}70%{box-shadow:0 0 0 26px rgba(229,72,77,0)}100%{box-shadow:0 0 0 0 rgba(229,72,77,0)}}
+@media (prefers-reduced-motion:reduce){#sos{animation:none}}
+.hint{text-align:center;color:#6b5f50;margin:0 0 10px}
+nav{position:fixed;bottom:10px;left:10px;right:10px;display:flex;background:#fff;border-radius:26px;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:1000;overflow:hidden}
+nav button{flex:1;border:0;background:#fff;padding:8px 2px;font-size:.68em;font-weight:700;color:#5a5044}
+nav button span{display:block;font-size:1.9em;line-height:1.1}
+nav button.on{background:var(--soft);color:var(--primary-d)}
+#map{height:52vh;border-radius:22px;border:2px solid var(--line)}
+#overlay{display:none;position:fixed;inset:0;background:rgba(30,20,10,.8);z-index:3000;align-items:center;justify-content:center;padding:20px;overflow:auto}
+#overlay .box{background:#fff;border-radius:26px;padding:22px;width:100%;max-width:480px;text-align:center}
 #overlay h2{margin-top:0}
 .row{display:flex;gap:8px;flex-wrap:wrap}
 .row>*{flex:1}
+hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+a.link{color:var(--primary-d);font-weight:700}
 </style>
 </head>
 <body>
 
 <header>
   <h1>🤝 Saathi</h1>
-  <div><button onclick="toggleBig()">A+</button><button onclick="toggleLang()" id="langBtn">हिन्दी</button></div>
+  <div class="tools">
+    <select id="langSel" onchange="setLang(this.value)">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी</option>
+      <option value="te">తెలుగు</option>
+    </select>
+    <button onclick="toggleBig()">A+</button>
+  </div>
 </header>
 
 <!-- HOME -->
 <section class="page active" id="p-home">
   <h2 id="hello"></h2>
   <button id="sos" onclick="startSOS()">🆘<br>SOS</button>
-  <p style="text-align:center">Press only in an emergency</p>
-  <button class="btn green" onclick="imOk()" data-i="imok">✅ I am OK today</button>
-  <p id="okStatus" style="text-align:center"></p>
+  <p class="hint" data-i="sosHint"></p>
+  <button class="btn" data-i="imok" onclick="imOk()"></button>
+  <p id="okStatus" class="hint"></p>
 
   <div class="card">
-    <h3>📞 Emergency contacts</h3>
+    <h3 data-i="contacts" data-icon="📞"></h3>
     <div id="contactList"></div>
-    <button class="btn" onclick="addContact()">+ Add contact</button>
+    <button class="btn soft" data-i="addContact" onclick="addContact()"></button>
   </div>
   <div class="card">
-    <h3>⚙️ My details</h3>
-    <button class="btn grey" onclick="setName()">Set my name</button>
-    <button class="btn grey" onclick="askNotif()">Allow notifications</button>
+    <h3 data-i="myDetails" data-icon="⚙️"></h3>
+    <button class="btn soft" data-i="setName" onclick="setName()"></button>
+    <button class="btn soft" data-i="allowNotif" onclick="askNotif()"></button>
+  </div>
+  <div class="card">
+    <a class="link" target="_blank" href="<a class="link" target="_blank" href="https://github.com/Bhumika-glitch/senior-companion-app" data-i="about" data-icon="ℹ️"></a>"ℹ️"></a>
   </div>
 </section>
 
-<!-- CALENDAR -->
+<!-- REMINDERS -->
 <section class="page" id="p-cal">
-  <h2 data-i="calendar">📅 Reminders</h2>
+  <h2 data-i="reminders" data-icon="📅"></h2>
   <div class="card">
-    <label>What is it for?</label>
+    <label data-i="whatFor"></label>
     <select id="rType">
-      <option value="💰|Pension day">💰 Pension day</option>
-      <option value="🩺|Medical check-up">🩺 Medical check-up</option>
-      <option value="💊|Take medicine">💊 Take medicine</option>
-      <option value="🛒|Buy more medicines">🛒 Buy more medicines</option>
-      <option value="📄|Welfare scheme">📄 Welfare scheme</option>
-      <option value="⭐|Special reminder">⭐ Special reminder</option>
+      <option value="pension" data-i="pension" data-icon="💰"></option>
+      <option value="checkup" data-i="checkup" data-icon="🩺"></option>
+      <option value="medicine" data-i="medicine" data-icon="💊"></option>
+      <option value="buymed" data-i="buymed" data-icon="🛒"></option>
+      <option value="scheme" data-i="scheme" data-icon="📄"></option>
+      <option value="special" data-i="special" data-icon="⭐"></option>
     </select>
-    <label>Extra note (optional)</label>
-    <input id="rNote" placeholder="e.g. BP tablet after breakfast">
-    <label>Date and time</label>
+    <label data-i="noteLbl"></label>
+    <input id="rNote">
+    <label data-i="dateTime"></label>
     <input type="datetime-local" id="rWhen">
-    <label>Repeat</label>
+    <label data-i="repeat"></label>
     <select id="rRep">
-      <option value="none">Only once</option>
-      <option value="daily">Every day</option>
-      <option value="weekly">Every week</option>
-      <option value="monthly">Every month</option>
+      <option value="none" data-i="once"></option>
+      <option value="daily" data-i="daily"></option>
+      <option value="weekly" data-i="weekly"></option>
+      <option value="monthly" data-i="monthly"></option>
     </select>
-    <button class="btn green" onclick="addRem()">Save reminder</button>
+    <button class="btn" data-i="saveRem" onclick="addRem()"></button>
   </div>
   <div id="remList"></div>
 </section>
 
 <!-- MAP -->
 <section class="page" id="p-map">
-  <h2 data-i="map">🗺️ My Map</h2>
+  <h2 data-i="map" data-icon="🗺️"></h2>
   <div id="map"></div>
-  <button class="btn green" onclick="goHome()">🏠 Take me home</button>
+  <button class="btn" data-i="goHome" onclick="goHome()"></button>
   <div class="row">
-    <button class="btn" onclick="setHome()">Set this as my home</button>
-    <button class="btn" onclick="savePlace()">Save this place</button>
+    <button class="btn soft" data-i="setHome" onclick="setHome()"></button>
+    <button class="btn soft" data-i="savePlace" onclick="savePlace()"></button>
   </div>
-  <button class="btn grey" onclick="shareLoc()">📤 Share my location with family</button>
-  <div class="card"><h3>📍 My daily places</h3><div id="placeList"></div></div>
+  <button class="btn orange" data-i="shareLoc" onclick="shareLoc()"></button>
+  <div class="card"><h3 data-i="myPlaces" data-icon="📍"></h3><div id="placeList"></div></div>
 </section>
 
 <!-- VISITS -->
 <section class="page" id="p-vis">
-  <h2 data-i="visits">🧑‍⚕️ Volunteer Visits</h2>
+  <h2 data-i="visits" data-icon="🧑‍⚕️"></h2>
   <div class="card">
-    <h3>My volunteer</h3>
+    <h3 data-i="volTitle"></h3>
     <p id="volInfo"></p>
-    <button class="btn grey" onclick="setVol()">Set volunteer details</button>
-    <button class="btn" onclick="callVol()">📞 Call volunteer</button>
+    <button class="btn soft" data-i="setVol" onclick="setVol()"></button>
+    <button class="btn" data-i="callVol" onclick="callVol()"></button>
   </div>
   <div class="card">
-    <h3>Add visit update (volunteer fills this)</h3>
-    <input id="vBP" placeholder="Blood pressure e.g. 130/85">
+    <h3 data-i="addVisit"></h3>
+    <input id="vBP" data-ph="bpPh">
     <select id="vMood">
-      <option>😀 Happy</option><option>🙂 Fine</option><option>😐 Quiet</option><option>😟 Worried</option><option>🤒 Unwell</option>
+      <option value="m1" data-i="m1"></option>
+      <option value="m2" data-i="m2"></option>
+      <option value="m3" data-i="m3"></option>
+      <option value="m4" data-i="m4"></option>
+      <option value="m5" data-i="m5"></option>
     </select>
-    <textarea id="vNote" rows="3" placeholder="Notes: food, sleep, medicines taken, needs..."></textarea>
-    <button class="btn green" onclick="addLog()">Save visit update</button>
+    <textarea id="vNote" rows="3" data-ph="notesPh"></textarea>
+    <button class="btn" data-i="saveVisit" onclick="addLog()"></button>
   </div>
   <div id="logList"></div>
 </section>
 
 <!-- TOGETHER -->
 <section class="page" id="p-tog">
-  <h2 data-i="together">👥 Together</h2>
-  <h3>Weekly Day Camps</h3>
+  <h2 data-i="together" data-icon="👥"></h2>
+  <h3 data-i="dayCamps"></h3>
   <div id="eventList"></div>
-  <h3>My friends</h3>
+  <h3 data-i="myFriends"></h3>
   <div id="friendList"></div>
-  <button class="btn" onclick="addFriend()">+ Add a friend</button>
+  <button class="btn soft" data-i="addFriend" onclick="addFriend()"></button>
 </section>
 
 <nav>
-  <button class="on" onclick="go('home',this)"><span>🏠</span><b data-i="home">Home</b></button>
-  <button onclick="go('cal',this)"><span>📅</span><b data-i="calendar">Reminders</b></button>
-  <button onclick="go('map',this)"><span>🗺️</span><b data-i="map">Map</b></button>
-  <button onclick="go('vis',this)"><span>🧑‍⚕️</span><b data-i="visits">Visits</b></button>
-  <button onclick="go('tog',this)"><span>👥</span><b data-i="together">Together</b></button>
+  <button class="on" onclick="go('home',this)"><span>🏠</span><b data-i="home"></b></button>
+  <button onclick="go('cal',this)"><span>📅</span><b data-i="reminders"></b></button>
+  <button onclick="go('map',this)"><span>🗺️</span><b data-i="map"></b></button>
+  <button onclick="go('vis',this)"><span>🧑‍⚕️</span><b data-i="visits"></b></button>
+  <button onclick="go('tog',this)"><span>👥</span><b data-i="together"></b></button>
 </nav>
 
 <div id="overlay"><div class="box" id="obox"></div></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+/* ---------- translations ---------- */
+const T = {
+en:{
+ home:'Home',reminders:'Reminders',map:'Map',visits:'Visits',together:'Together',
+ gm:'Good morning',ga:'Good afternoon',ge:'Good evening',
+ sosHint:'Press only in an emergency',imok:'✅ I am OK today',
+ contacts:'Emergency contacts',addContact:'+ Add contact',myDetails:'My details',setName:'Set my name',allowNotif:'Allow notifications',
+ about:'About this project',noContacts:'No contacts yet. Add one so SOS can work.',remove:'Remove',
+ lastCheck:'Last check-in: ',notChecked:'You have not checked in yet today.',
+ whatFor:'What is it for?',pension:'Pension day',checkup:'Medical check-up',medicine:'Take medicine',buymed:'Buy more medicines',scheme:'Welfare scheme',special:'Special reminder',
+ noteLbl:'Extra note (optional)',dateTime:'Date and time',repeat:'Repeat',once:'Only once',daily:'Every day',weekly:'Every week',monthly:'Every month',
+ saveRem:'Save reminder',noRem:'No reminders yet.',repeats:'repeats',delete:'Delete',
+ goHome:'🏠 Take me home',setHome:'Set this as my home',savePlace:'Save this place',shareLoc:'📤 Share my location with family',
+ myPlaces:'My daily places',goThere:'Go there',noPlaces:'No saved places yet.',
+ volTitle:'My volunteer',setVol:'Set volunteer details',callVol:'📞 Call volunteer',addVisit:'Add visit update (volunteer fills this)',
+ bpPh:'Blood pressure e.g. 130/85',notesPh:'Notes: food, sleep, medicines taken, needs...',saveVisit:'Save visit update',
+ noVol:'No volunteer assigned yet.',nextVisit:'Next visit',notSet:'not set',bp:'BP',
+ m1:'😀 Happy',m2:'🙂 Fine',m3:'😐 Quiet',m4:'😟 Worried',m5:'🤒 Unwell',
+ dayCamps:'Weekly Day Camps',myFriends:'My friends',addFriend:'+ Add a friend',join:'Join',joined:'✔ Joined',
+ noFriends:'Add friends you meet at the Day Camps.',call:'📞 Call',whatsapp:'💬 WhatsApp',
+ e1t:'Sunday Smiles Day Camp',e1w:'Every Sunday, 10:00 AM',e1p:'Community Hall',e1a:'Games, music, tea and conversation',
+ e2t:'Learn-a-Skill Morning',e2w:'Every Wednesday, 10:00 AM',e2p:'Local school (with children)',e2a:'Craft, phone skills, storytelling with kids',
+ e3t:'Talent and Talk Evening',e3w:'Every Friday, 5:00 PM',e3p:'Community Hall',e3a:'Sing, perform, share stories',
+ sosSending:'Sending alert in',sosCancelHint:'Tap CANCEL if this was a mistake.',cancel:'CANCEL',alertReady:'Alert ready',
+ tapSend:'Tap Send SMS for each person, or Call.',sendSms:'💬 Send SMS',close:'Close',addContactFirst:'Please add an emergency contact first.',
+ sosMsg:'EMERGENCY! I need help now. My location:',noLoc:'(location not available)',okMsg:'I am OK today.',
+ thanks:'Thank you. Your family will know you are fine.',tellOk:'Tell this person you are OK by message?',
+ askName:'Your name?',contactName:'Contact name (e.g. Son Rahul)',contactPhone:'Phone number with +91',
+ pickDate:'Please choose a date and time.',savedRem:'Saved! The alarm will ring at that time.',
+ done:'✅ Done',snooze:'⏰ Remind me in 10 minutes',remTitle:'Reminder',
+ waitLoc:'Waiting for your location. Please allow location access.',youHere:'You are here',myHome:'My home',homeSaved:'Home saved!',
+ setHomeFirst:'First stand at your home and press "Set this as my home".',namePlace:'Name this place (e.g. Park, Temple, Market)',
+ volName:'Volunteer name',volPhone:'Volunteer phone (with +91)',volNext:'Next visit date (e.g. 2026-11-07)',addVolFirst:'Add volunteer details first.',visitSaved:'Visit update saved.',
+ friendName:'Friend name',friendPhone:'Friend phone (with +91)',joinedMsg:'You joined! A weekly reminder was added.',
+ notifState:'Notifications: ',notSupported:'Not supported on this browser'
+},
+hi:{
+ home:'होम',reminders:'याद दिलाना',map:'नक्शा',visits:'मुलाक़ात',together:'साथ',
+ gm:'सुप्रभात',ga:'नमस्कार',ge:'शुभ संध्या',
+ sosHint:'केवल आपात स्थिति में दबाएँ',imok:'✅ मैं आज ठीक हूँ',
+ contacts:'आपातकालीन संपर्क',addContact:'+ संपर्क जोड़ें',myDetails:'मेरी जानकारी',setName:'मेरा नाम डालें',allowNotif:'सूचनाएँ चालू करें',
+ about:'इस प्रोजेक्ट के बारे में',noContacts:'अभी कोई संपर्क नहीं। SOS के लिए एक जोड़ें।',remove:'हटाएँ',
+ lastCheck:'आखिरी चेक-इन: ',notChecked:'आज आपने अभी चेक-इन नहीं किया।',
+ whatFor:'यह किसके लिए है?',pension:'पेंशन का दिन',checkup:'डॉक्टर की जाँच',medicine:'दवा लें',buymed:'दवाइयाँ खरीदें',scheme:'सरकारी योजना',special:'खास याद दिलाना',
+ noteLbl:'अतिरिक्त नोट (ज़रूरी नहीं)',dateTime:'तारीख और समय',repeat:'दोहराएँ',once:'सिर्फ एक बार',daily:'हर दिन',weekly:'हर हफ्ते',monthly:'हर महीने',
+ saveRem:'याद दिलाना सहेजें',noRem:'अभी कोई याद दिलाना नहीं।',repeats:'दोहराता है',delete:'हटाएँ',
+ goHome:'🏠 मुझे घर ले चलो',setHome:'इसे मेरा घर बनाएँ',savePlace:'यह जगह सहेजें',shareLoc:'📤 परिवार को मेरी लोकेशन भेजें',
+ myPlaces:'मेरी रोज़ की जगहें',goThere:'वहाँ जाएँ',noPlaces:'कोई सहेजी जगह नहीं।',
+ volTitle:'मेरे स्वयंसेवक',setVol:'स्वयंसेवक की जानकारी डालें',callVol:'📞 स्वयंसेवक को फोन करें',addVisit:'मुलाक़ात की जानकारी (स्वयंसेवक भरेंगे)',
+ bpPh:'ब्लड प्रेशर जैसे 130/85',notesPh:'नोट: खाना, नींद, दवाइयाँ, ज़रूरतें...',saveVisit:'मुलाक़ात सहेजें',
+ noVol:'अभी कोई स्वयंसेवक नहीं।',nextVisit:'अगली मुलाक़ात',notSet:'तय नहीं',bp:'बीपी',
+ m1:'😀 खुश',m2:'🙂 ठीक',m3:'😐 चुप',m4:'😟 चिंतित',m5:'🤒 अस्वस्थ',
+ dayCamps:'साप्ताहिक डे कैंप',myFriends:'मेरे दोस्त',addFriend:'+ दोस्त जोड़ें',join:'शामिल हों',joined:'✔ शामिल हुए',
+ noFriends:'डे कैंप में मिले दोस्तों को जोड़ें।',call:'📞 फोन करें',whatsapp:'💬 व्हाट्सऐप',
+ e1t:'रविवार मुस्कान डे कैंप',e1w:'हर रविवार, सुबह 10 बजे',e1p:'सामुदायिक भवन',e1a:'खेल, संगीत, चाय और बातचीत',
+ e2t:'नई कला सीखने की सुबह',e2w:'हर बुधवार, सुबह 10 बजे',e2p:'स्थानीय स्कूल (बच्चों के साथ)',e2a:'हस्तकला, फोन चलाना, बच्चों के साथ कहानियाँ',
+ e3t:'हुनर और बातचीत की शाम',e3w:'हर शुक्रवार, शाम 5 बजे',e3p:'सामुदायिक भवन',e3a:'गाना, प्रस्तुति, कहानियाँ साझा करना',
+ sosSending:'अलर्ट भेजा जा रहा है',sosCancelHint:'गलती से दबा हो तो रद्द करें।',cancel:'रद्द करें',alertReady:'अलर्ट तैयार',
+ tapSend:'हर व्यक्ति के लिए SMS भेजें या फोन करें।',sendSms:'💬 SMS भेजें',close:'बंद करें',addContactFirst:'पहले एक आपातकालीन संपर्क जोड़ें।',
+ sosMsg:'आपात स्थिति! मुझे अभी मदद चाहिए। मेरी लोकेशन:',noLoc:'(लोकेशन उपलब्ध नहीं)',okMsg:'मैं आज ठीक हूँ।',
+ thanks:'धन्यवाद। आपके परिवार को पता चल जाएगा कि आप ठीक हैं।',tellOk:'क्या इन्हें संदेश भेजकर बताएँ कि आप ठीक हैं?',
+ askName:'आपका नाम?',contactName:'संपर्क का नाम (जैसे बेटा राहुल)',contactPhone:'फोन नंबर (+91 के साथ)',
+ pickDate:'कृपया तारीख और समय चुनें।',savedRem:'सहेज लिया! उस समय अलार्म बजेगा।',
+ done:'✅ हो गया',snooze:'⏰ 10 मिनट बाद याद दिलाएँ',remTitle:'याद दिलाना',
+ waitLoc:'आपकी लोकेशन का इंतज़ार है। कृपया लोकेशन की अनुमति दें।',youHere:'आप यहाँ हैं',myHome:'मेरा घर',homeSaved:'घर सहेज लिया!',
+ setHomeFirst:'पहले अपने घर पर खड़े होकर "इसे मेरा घर बनाएँ" दबाएँ।',namePlace:'इस जगह का नाम (जैसे पार्क, मंदिर, बाज़ार)',
+ volName:'स्वयंसेवक का नाम',volPhone:'स्वयंसेवक का फोन (+91 के साथ)',volNext:'अगली मुलाक़ात की तारीख (जैसे 2026-11-07)',addVolFirst:'पहले स्वयंसेवक की जानकारी जोड़ें।',visitSaved:'मुलाक़ात सहेज ली गई।',
+ friendName:'दोस्त का नाम',friendPhone:'दोस्त का फोन (+91 के साथ)',joinedMsg:'आप शामिल हो गए! साप्ताहिक याद दिलाना जुड़ गया।',
+ notifState:'सूचनाएँ: ',notSupported:'इस ब्राउज़र में उपलब्ध नहीं'
+},
+te:{
+ home:'హోమ్',reminders:'గుర్తుచేతలు',map:'మ్యాప్',visits:'సందర్శనలు',together:'కలిసి',
+ gm:'శుభోదయం',ga:'శుభ మధ్యాహ్నం',ge:'శుభ సాయంత్రం',
+ sosHint:'అత్యవసర పరిస్థితిలో మాత్రమే నొక్కండి',imok:'✅ నేను ఈరోజు బాగున్నాను',
+ contacts:'అత్యవసర సంప్రదింపులు',addContact:'+ సంప్రదింపు జోడించండి',myDetails:'నా వివరాలు',setName:'నా పేరు పెట్టండి',allowNotif:'నోటిఫికేషన్లు అనుమతించండి',
+ about:'ఈ ప్రాజెక్ట్ గురించి',noContacts:'ఇంకా సంప్రదింపులు లేవు. SOS పనిచేయడానికి ఒకరిని జోడించండి.',remove:'తొలగించు',
+ lastCheck:'చివరి చెక్-ఇన్: ',notChecked:'ఈరోజు ఇంకా చెక్-ఇన్ చేయలేదు.',
+ whatFor:'ఇది దేని కోసం?',pension:'పింఛను రోజు',checkup:'వైద్య పరీక్ష',medicine:'మందు వేసుకోండి',buymed:'మందులు కొనండి',scheme:'సంక్షేమ పథకం',special:'ప్రత్యేక గుర్తుచేత',
+ noteLbl:'అదనపు గమనిక (ఐచ్ఛికం)',dateTime:'తేదీ మరియు సమయం',repeat:'పునరావృతం',once:'ఒక్కసారి మాత్రమే',daily:'ప్రతిరోజు',weekly:'ప్రతివారం',monthly:'ప్రతినెల',
+ saveRem:'గుర్తుచేత సేవ్ చేయండి',noRem:'ఇంకా గుర్తుచేతలు లేవు.',repeats:'పునరావృతం',delete:'తొలగించు',
+ goHome:'🏠 నన్ను ఇంటికి తీసుకెళ్ళు',setHome:'ఇదే నా ఇల్లు',savePlace:'ఈ చోటు సేవ్ చేయండి',shareLoc:'📤 కుటుంబంతో నా లొకేషన్ పంచుకోండి',
+ myPlaces:'నా రోజువారీ చోట్లు',goThere:'అక్కడికి వెళ్ళు',noPlaces:'సేవ్ చేసిన చోట్లు లేవు.',
+ volTitle:'నా వాలంటీర్',setVol:'వాలంటీర్ వివరాలు పెట్టండి',callVol:'📞 వాలంటీర్‌కు కాల్ చేయండి',addVisit:'సందర్శన వివరాలు (వాలంటీర్ నింపుతారు)',
+ bpPh:'రక్తపోటు ఉదా. 130/85',notesPh:'గమనికలు: భోజనం, నిద్ర, మందులు, అవసరాలు...',saveVisit:'సందర్శన సేవ్ చేయండి',
+ noVol:'వాలంటీర్ ఇంకా లేరు.',nextVisit:'తదుపరి సందర్శన',notSet:'పెట్టలేదు',bp:'బీపీ',
+ m1:'😀 సంతోషం',m2:'🙂 బాగున్నారు',m3:'😐 మౌనంగా',m4:'😟 ఆందోళన',m5:'🤒 అనారోగ్యం',
+ dayCamps:'వారపు డే క్యాంపులు',myFriends:'నా స్నేహితులు',addFriend:'+ స్నేహితుడిని జోడించండి',join:'చేరండి',joined:'✔ చేరారు',
+ noFriends:'డే క్యాంపుల్లో కలిసిన స్నేహితులను జోడించండి.',call:'📞 కాల్',whatsapp:'💬 వాట్సాప్',
+ e1t:'ఆదివారం నవ్వుల క్యాంపు',e1w:'ప్రతి ఆదివారం, ఉదయం 10',e1p:'కమ్యూనిటీ హాల్',e1a:'ఆటలు, సంగీతం, టీ, కబుర్లు',
+ e2t:'కొత్త నైపుణ్యం నేర్చుకునే ఉదయం',e2w:'ప్రతి బుధవారం, ఉదయం 10',e2p:'స్థానిక పాఠశాల (పిల్లలతో)',e2a:'హస్తకళలు, ఫోన్ నైపుణ్యాలు, పిల్లలతో కథలు',
+ e3t:'ప్రతిభ మరియు కబుర్ల సాయంత్రం',e3w:'ప్రతి శుక్రవారం, సాయంత్రం 5',e3p:'కమ్యూనిటీ హాల్',e3a:'పాడండి, ప్రదర్శించండి, కథలు పంచుకోండి',
+ sosSending:'అలర్ట్ పంపుతున్నాం',sosCancelHint:'పొరపాటున నొక్కితే రద్దు చేయండి.',cancel:'రద్దు',alertReady:'అలర్ట్ సిద్ధం',
+ tapSend:'ప్రతి ఒక్కరికి SMS పంపండి లేదా కాల్ చేయండి.',sendSms:'💬 SMS పంపండి',close:'మూసివేయండి',addContactFirst:'ముందుగా ఒక అత్యవసర సంప్రదింపును జోడించండి.',
+ sosMsg:'అత్యవసరం! నాకు ఇప్పుడే సహాయం కావాలి. నా లొకేషన్:',noLoc:'(లొకేషన్ అందుబాటులో లేదు)',okMsg:'నేను ఈరోజు బాగున్నాను.',
+ thanks:'ధన్యవాదాలు. మీరు బాగున్నారని కుటుంబానికి తెలుస్తుంది.',tellOk:'మీరు బాగున్నారని వీరికి సందేశం పంపాలా?',
+ askName:'మీ పేరు?',contactName:'సంప్రదింపు పేరు (ఉదా. అబ్బాయి రాహుల్)',contactPhone:'ఫోన్ నంబర్ (+91 తో)',
+ pickDate:'దయచేసి తేదీ మరియు సమయం ఎంచుకోండి.',savedRem:'సేవ్ అయింది! ఆ సమయానికి అలారం మోగుతుంది.',
+ done:'✅ పూర్తయింది',snooze:'⏰ 10 నిమిషాల్లో మళ్ళీ గుర్తుచేయండి',remTitle:'గుర్తుచేత',
+ waitLoc:'మీ లొకేషన్ కోసం వేచి ఉన్నాం. దయచేసి లొకేషన్ అనుమతించండి.',youHere:'మీరు ఇక్కడ ఉన్నారు',myHome:'నా ఇల్లు',homeSaved:'ఇల్లు సేవ్ అయింది!',
+ setHomeFirst:'ముందు ఇంట్లో నిలబడి "ఇదే నా ఇల్లు" నొక్కండి.',namePlace:'ఈ చోటుకు పేరు (ఉదా. పార్క్, గుడి, మార్కెట్)',
+ volName:'వాలంటీర్ పేరు',volPhone:'వాలంటీర్ ఫోన్ (+91 తో)',volNext:'తదుపరి సందర్శన తేదీ (ఉదా. 2026-11-07)',addVolFirst:'ముందు వాలంటీర్ వివరాలు జోడించండి.',visitSaved:'సందర్శన సేవ్ అయింది.',
+ friendName:'స్నేహితుడి పేరు',friendPhone:'స్నేహితుడి ఫోన్ (+91 తో)',joinedMsg:'చేరారు! వారపు గుర్తుచేత జోడించబడింది.',
+ notifState:'నోటిఫికేషన్లు: ',notSupported:'ఈ బ్రౌజర్‌లో అందుబాటులో లేదు'
+}};
+
 /* ---------- helpers & storage ---------- */
 const $ = s => document.querySelector(s);
 const KEY = 'saathi_v1';
 let S = Object.assign({name:'',contacts:[],reminders:[],home:null,places:[],logs:[],
   vol:{name:'',phone:'',next:''},friends:[],joined:[],lastOk:'',trail:[],lang:'en',big:false},
   JSON.parse(localStorage.getItem(KEY) || '{}'));
+if(!T[S.lang]) S.lang = 'en';
 const save = () => localStorage.setItem(KEY, JSON.stringify(S));
+const t = k => (T[S.lang] && T[S.lang][k]) || T.en[k] || k;
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad = n => String(n).padStart(2,'0');
 const toLocalISO = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-const fmt = s => new Date(s).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+const LOC = {en:'en-IN',hi:'hi-IN',te:'te-IN'};
+const fmt = s => new Date(s).toLocaleString(LOC[S.lang],{dateStyle:'medium',timeStyle:'short'});
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const ICON = {pension:'💰',checkup:'🩺',medicine:'💊',buymed:'🛒',scheme:'📄',special:'⭐',e1t:'👥',e2t:'👥',e3t:'👥'};
 
 /* ---------- language ---------- */
-const TXT = {
-  en:{home:'Home',calendar:'Reminders',map:'Map',visits:'Visits',together:'Together',imok:'✅ I am OK today',hello:'Hello'},
-  hi:{home:'होम',calendar:'याद दिलाना',map:'नक्शा',visits:'मुलाक़ात',together:'साथ',imok:'✅ मैं ठीक हूँ',hello:'नमस्ते'}
-};
 function applyLang(){
   document.querySelectorAll('[data-i]').forEach(e=>{
-    const t = TXT[S.lang][e.dataset.i];
-    if(t){ const hasIcon = /^[^\w\u0900-\u097F]/.test(e.textContent.trim()) && e.tagName!=='B';
-      e.textContent = (e.tagName==='B') ? t : (e.textContent.split(' ')[0] + ' ' + t.replace(/^✅ /,'')); }
+    e.textContent = (e.dataset.icon ? e.dataset.icon+' ' : '') + t(e.dataset.i);
   });
-  $('#imokFix') ;
-  $('#langBtn').textContent = S.lang==='en' ? 'हिन्दी' : 'English';
-  $('#hello').textContent = TXT[S.lang].hello + (S.name ? ', ' + S.name : '') + ' 🙏';
+  document.querySelectorAll('[data-ph]').forEach(e=>{ e.placeholder = t(e.dataset.ph); });
+  $('#langSel').value = S.lang;
   document.documentElement.lang = S.lang;
+  greet(); renderContacts(); renderOk(); renderRem(); renderVol(); renderTog(); renderPlaces();
 }
-function toggleLang(){ S.lang = S.lang==='en' ? 'hi' : 'en'; save(); applyLang(); }
+function setLang(l){ S.lang = l; save(); applyLang(); }
+function greet(){
+  const h = new Date().getHours();
+  $('#hello').textContent = t(h<12?'gm':h<17?'ga':'ge') + (S.name ? ', ' + S.name : '') + ' 🙏';
+}
 function toggleBig(){ S.big = !S.big; save(); document.body.classList.toggle('big', S.big); }
 
 /* ---------- navigation ---------- */
@@ -203,43 +335,48 @@ function beep(n=4){
     }
   }catch(e){}
 }
-function speak(t){ try{ const u=new SpeechSynthesisUtterance(t); u.lang=S.lang==='hi'?'hi-IN':'en-IN'; speechSynthesis.speak(u);}catch(e){} }
+function speak(txt){ try{ const u=new SpeechSynthesisUtterance(txt); u.lang=LOC[S.lang]; speechSynthesis.speak(u);}catch(e){} }
 function popup(title, body, buttons){
   $('#obox').innerHTML = `<h2>${title}</h2><p>${body}</p>` +
     buttons.map((b,i)=>`<button class="btn ${b.cls||''}" id="pb${i}">${b.label}</button>`).join('');
-  buttons.forEach((b,i)=>{ $('#pb'+i).onclick = () => { if(b.close!==false) closePopup(); if(b.fn) b.fn(); }; });
+  buttons.forEach((b,i)=>{ $('#pb'+i).onclick = () => { closePopup(); if(b.fn) b.fn(); }; });
   $('#overlay').style.display='flex';
 }
 function closePopup(){ $('#overlay').style.display='none'; }
-function askNotif(){ if('Notification' in window) Notification.requestPermission().then(r=>alert('Notifications: '+r)); else alert('Not supported on this browser'); }
+function askNotif(){
+  if('Notification' in window) Notification.requestPermission().then(r=>alert(t('notifState')+r));
+  else alert(t('notSupported'));
+}
 
-/* ---------- HOME: name, contacts, I am OK ---------- */
-function setName(){ const n=prompt('Your name?', S.name); if(n!==null){ S.name=n.trim(); save(); applyLang(); } }
+/* ---------- HOME ---------- */
+function setName(){ const n=prompt(t('askName'), S.name); if(n!==null){ S.name=n.trim(); save(); greet(); } }
 function addContact(){
-  const name=prompt('Contact name (e.g. Son Rahul)'); if(!name) return;
-  const phone=prompt('Phone number with country code (e.g. +919876543210)'); if(!phone) return;
+  const name=prompt(t('contactName')); if(!name) return;
+  const phone=prompt(t('contactPhone')); if(!phone) return;
   S.contacts.push({id:uid(), name:name.trim(), phone:phone.trim()}); save(); renderContacts();
 }
 function delContact(id){ S.contacts=S.contacts.filter(c=>c.id!==id); save(); renderContacts(); }
 function renderContacts(){
   $('#contactList').innerHTML = S.contacts.map(c=>
-    `<div><b>${esc(c.name)}</b> ${esc(c.phone)}<br><button class="small" onclick="delContact('${c.id}')">Remove</button></div><hr>`
-  ).join('') || '<p>No contacts yet. Add one so SOS can work.</p>';
+    `<div><b>${esc(c.name)}</b> ${esc(c.phone)}<br><button class="small" onclick="delContact('${c.id}')">${t('remove')}</button></div><hr>`
+  ).join('') || `<p>${t('noContacts')}</p>`;
 }
 function imOk(){
   S.lastOk = new Date().toISOString(); save(); renderOk();
-  speak('Thank you. Your family will know you are fine.');
+  speak(t('thanks'));
   if(S.contacts[0]){
-    const msg = `${S.name||'I'} am OK today. - Saathi`;
-    if(confirm('Tell '+S.contacts[0].name+' you are OK by message?')) location.href='sms:'+S.contacts[0].phone+'?body='+encodeURIComponent(msg);
+    const msg = (S.name ? S.name+': ' : '') + t('okMsg') + ' - Saathi';
+    if(confirm(t('tellOk')+' ('+S.contacts[0].name+')')) location.href='sms:'+S.contacts[0].phone+'?body='+encodeURIComponent(msg);
   }
 }
-function renderOk(){ $('#okStatus').textContent = S.lastOk ? 'Last check-in: '+new Date(S.lastOk).toLocaleString('en-IN') : 'You have not checked in yet today.'; }
+function renderOk(){
+  $('#okStatus').textContent = S.lastOk ? t('lastCheck')+new Date(S.lastOk).toLocaleString(LOC[S.lang]) : t('notChecked');
+}
 
-/* ---------- LOCATION (runs from app start) ---------- */
-let cur=null, map=null, meMarker=null, homeMarker=null, trailLine=null, firstFix=true;
+/* ---------- LOCATION ---------- */
+let cur=null, map=null, meMarker=null, homeMarker=null, trailLine=null, placeLayer=null, firstFix=true;
 function startWatch(){
-  if(!navigator.geolocation){ return; }
+  if(!navigator.geolocation) return;
   navigator.geolocation.watchPosition(p=>{
     cur = {lat:p.coords.latitude, lon:p.coords.longitude};
     const last = S.trail[S.trail.length-1];
@@ -252,40 +389,40 @@ function mapsLink(){ return cur ? `https://maps.google.com/?q=${cur.lat},${cur.l
 /* ---------- SOS ---------- */
 let sosTimer=null;
 function startSOS(){
-  if(!S.contacts.length){ alert('Please add an emergency contact first.'); return; }
+  if(!S.contacts.length){ alert(t('addContactFirst')); return; }
   let n=5;
-  const show=()=>popup('🆘 Sending alert in '+n, 'Tap CANCEL if this was a mistake.', [{label:'CANCEL',cls:'grey',fn:()=>clearInterval(sosTimer)}]);
+  const show=()=>popup('🆘 '+t('sosSending')+' '+n, t('sosCancelHint'), [{label:t('cancel'),cls:'soft',fn:()=>clearInterval(sosTimer)}]);
   show(); beep(2);
   sosTimer=setInterval(()=>{ n--; if(n<=0){ clearInterval(sosTimer); sendSOS(); } else show(); },1000);
 }
 function sendSOS(){
-  const msg = `EMERGENCY! ${S.name||'I'} need help now. My location: ${mapsLink()||'(location not available)'}`;
-  beep(6); speak('Emergency alert sent');
+  const msg = (S.name ? S.name+': ' : '') + t('sosMsg') + ' ' + (mapsLink()||t('noLoc'));
+  beep(6); speak(t('sosMsg').split('!')[0]);
   const list = S.contacts.map(c=>
     `<div class="card"><b>${esc(c.name)}</b>
-     <a class="btn red" href="tel:${esc(c.phone)}">📞 Call</a>
-     <a class="btn" href="sms:${esc(c.phone)}?body=${encodeURIComponent(msg)}">💬 Send SMS</a></div>`).join('');
-  $('#obox').innerHTML = `<h2>🆘 Alert ready</h2><p>Tap Send SMS for each person, or Call.</p>${list}<button class="btn grey" onclick="closePopup()">Close</button>`;
+     <a class="btn red" href="tel:${esc(c.phone)}">${t('call')}</a>
+     <a class="btn" href="sms:${esc(c.phone)}?body=${encodeURIComponent(msg)}">${t('sendSms')}</a></div>`).join('');
+  $('#obox').innerHTML = `<h2>🆘 ${t('alertReady')}</h2><p>${t('tapSend')}</p>${list}<button class="btn soft" onclick="closePopup()">${t('close')}</button>`;
   $('#overlay').style.display='flex';
   setTimeout(()=>{ location.href='sms:'+S.contacts[0].phone+'?body='+encodeURIComponent(msg); }, 800);
 }
 
 /* ---------- REMINDERS ---------- */
+function remTitle(r){ return r.key ? t(r.key)+(r.note?' - '+r.note:'') : r.title; }
+function remIcon(r){ return r.icon || ICON[r.key] || '⭐'; }
 function addRem(){
-  const [icon,title] = $('#rType').value.split('|');
   const when = $('#rWhen').value;
-  if(!when){ alert('Please choose a date and time.'); return; }
-  const note = $('#rNote').value.trim();
-  S.reminders.push({id:uid(), icon, title: title + (note ? ' - '+note : ''), when, rep: $('#rRep').value});
-  save(); renderRem(); $('#rNote').value=''; alert('Saved! The alarm will ring at that time.');
+  if(!when){ alert(t('pickDate')); return; }
+  S.reminders.push({id:uid(), key:$('#rType').value, note:$('#rNote').value.trim(), when, rep:$('#rRep').value});
+  save(); renderRem(); $('#rNote').value=''; alert(t('savedRem'));
 }
 function delRem(id){ S.reminders=S.reminders.filter(r=>r.id!==id); save(); renderRem(); }
 function renderRem(){
   const l = S.reminders.slice().sort((a,b)=>a.when.localeCompare(b.when));
   $('#remList').innerHTML = l.map(r=>
-    `<div class="card"><b>${r.icon} ${esc(r.title)}</b><br>${fmt(r.when)} ${r.rep!=='none'?'· repeats '+r.rep:''}<br>
-     <button class="small" onclick="delRem('${r.id}')">Delete</button></div>`
-  ).join('') || '<p>No reminders yet.</p>';
+    `<div class="card"><b>${remIcon(r)} ${esc(remTitle(r))}</b><br>${fmt(r.when)} ${r.rep!=='none'?'· '+t(r.rep):''}<br>
+     <button class="small" onclick="delRem('${r.id}')">${t('delete')}</button></div>`
+  ).join('') || `<p>${t('noRem')}</p>`;
 }
 function nextDate(s, rep){
   const d = new Date(s);
@@ -305,13 +442,13 @@ function checkReminders(){
   });
 }
 function fireReminder(r){
-  beep(5); speak('Reminder. ' + r.title);
-  if('Notification' in window && Notification.permission==='granted') new Notification('Saathi reminder', {body: r.icon+' '+r.title});
-  popup(r.icon+' Reminder', `<span style="font-size:1.3em">${esc(r.title)}</span>`, [
-    {label:'✅ Done', cls:'green'},
-    {label:'⏰ Remind me in 10 minutes', cls:'grey', fn:()=>{
-      const d=new Date(Date.now()+600000);
-      S.reminders.push({id:uid(),icon:r.icon,title:r.title,when:toLocalISO(d),rep:'none'}); save(); renderRem(); }}
+  const title = remTitle(r), icon = remIcon(r);
+  beep(5); speak(title);
+  if('Notification' in window && Notification.permission==='granted') new Notification('Saathi', {body: icon+' '+title});
+  popup(icon+' '+t('remTitle'), `<span style="font-size:1.3em">${esc(title)}</span>`, [
+    {label:t('done')},
+    {label:t('snooze'), cls:'soft', fn:()=>{
+      S.reminders.push({id:uid(),key:r.key,note:r.note,title:r.title,icon:r.icon,when:toLocalISO(new Date(Date.now()+600000)),rep:'none'}); save(); renderRem(); }}
   ]);
 }
 
@@ -321,12 +458,12 @@ function initMap(){
   const start = S.home ? [S.home.lat,S.home.lon] : cur ? [cur.lat,cur.lon] : [20.59,78.96];
   map = L.map('map').setView(start, (S.home||cur) ? 16 : 5);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
-  trailLine = L.polyline([], {color:'#0b5cad', weight:5}).addTo(map);
+  trailLine = L.polyline([], {color:'#1f8a70', weight:5}).addTo(map);
   drawHome(); drawPlaces(); updateMe(); renderPlaces();
 }
 function updateMe(){
   if(!map || !cur) return;
-  if(!meMarker) meMarker = L.circleMarker([cur.lat,cur.lon],{radius:11,color:'#fff',weight:3,fillColor:'#c62828',fillOpacity:1}).addTo(map).bindPopup('You are here');
+  if(!meMarker) meMarker = L.circleMarker([cur.lat,cur.lon],{radius:11,color:'#fff',weight:3,fillColor:'#e5484d',fillOpacity:1}).addTo(map).bindPopup(t('youHere'));
   else meMarker.setLatLng([cur.lat,cur.lon]);
   const today = new Date().toDateString();
   trailLine.setLatLngs(S.trail.filter(p=>new Date(p.t).toDateString()===today).map(p=>[p.lat,p.lon]));
@@ -335,98 +472,96 @@ function updateMe(){
 function drawHome(){
   if(!map || !S.home) return;
   if(homeMarker) map.removeLayer(homeMarker);
-  homeMarker = L.marker([S.home.lat,S.home.lon],{icon:L.divIcon({html:'<div style="font-size:34px">🏠</div>',className:'',iconSize:[34,34]})}).addTo(map).bindPopup('My home');
+  homeMarker = L.marker([S.home.lat,S.home.lon],{icon:L.divIcon({html:'<div style="font-size:34px">🏠</div>',className:'',iconSize:[34,34]})}).addTo(map).bindPopup(t('myHome'));
 }
 function setHome(){
-  if(!cur){ alert('Waiting for your location. Please allow location access.'); return; }
-  S.home={lat:cur.lat,lon:cur.lon}; save(); drawHome(); alert('Home saved!');
+  if(!cur){ alert(t('waitLoc')); return; }
+  S.home={lat:cur.lat,lon:cur.lon}; save(); drawHome(); alert(t('homeSaved'));
 }
 function goHome(){
-  if(!S.home){ alert('First stand at your home and press "Set this as my home".'); return; }
+  if(!S.home){ alert(t('setHomeFirst')); return; }
   window.open(`https://www.google.com/maps/dir/?api=1&destination=${S.home.lat},${S.home.lon}&travelmode=walking`);
 }
 function savePlace(){
-  if(!cur){ alert('Waiting for your location.'); return; }
-  const name=prompt('Name this place (e.g. Park, Temple, Market)'); if(!name) return;
+  if(!cur){ alert(t('waitLoc')); return; }
+  const name=prompt(t('namePlace')); if(!name) return;
   S.places.push({id:uid(),name:name.trim(),lat:cur.lat,lon:cur.lon}); save(); drawPlaces(); renderPlaces();
 }
 function drawPlaces(){
   if(!map) return;
-  S.places.forEach(p=>{ if(!p._m) { L.marker([p.lat,p.lon]).addTo(map).bindPopup(esc(p.name)); } });
+  if(placeLayer) map.removeLayer(placeLayer);
+  placeLayer = L.layerGroup(S.places.map(p => L.marker([p.lat,p.lon]).bindPopup(esc(p.name)))).addTo(map);
 }
 function renderPlaces(){
   $('#placeList').innerHTML = S.places.map(p=>
     `<div><b>📍 ${esc(p.name)}</b><br>
-     <button class="small" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}&travelmode=walking')">Go there</button>
-     <button class="small" onclick="delPlace('${p.id}')">Remove</button></div><hr>`
-  ).join('') || '<p>No saved places yet.</p>';
+     <button class="small" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}&travelmode=walking')">${t('goThere')}</button>
+     <button class="small" onclick="delPlace('${p.id}')">${t('remove')}</button></div><hr>`
+  ).join('') || `<p>${t('noPlaces')}</p>`;
 }
-function delPlace(id){ S.places=S.places.filter(p=>p.id!==id); save(); renderPlaces(); alert('Removed. Reload the page to refresh the map pins.'); }
+function delPlace(id){ S.places=S.places.filter(p=>p.id!==id); save(); drawPlaces(); renderPlaces(); }
 function shareLoc(){
-  if(!cur){ alert('Waiting for your location.'); return; }
-  const text = `${S.name||'I'} - my location now: ${mapsLink()}`;
+  if(!cur){ alert(t('waitLoc')); return; }
+  const text = `${S.name||''} - ${mapsLink()}`;
   if(navigator.share) navigator.share({text}).catch(()=>{});
   else window.open('https://wa.me/?text='+encodeURIComponent(text));
 }
 
 /* ---------- VOLUNTEER VISITS ---------- */
 function setVol(){
-  const n=prompt('Volunteer name', S.vol.name); if(n===null) return;
-  const p=prompt('Volunteer phone (with +91)', S.vol.phone); if(p===null) return;
-  const d=prompt('Next visit date (e.g. 2026-11-07)', S.vol.next); if(d===null) return;
+  const n=prompt(t('volName'), S.vol.name); if(n===null) return;
+  const p=prompt(t('volPhone'), S.vol.phone); if(p===null) return;
+  const d=prompt(t('volNext'), S.vol.next); if(d===null) return;
   S.vol={name:n.trim(),phone:p.trim(),next:d.trim()}; save(); renderVol();
 }
-function callVol(){ if(S.vol.phone) location.href='tel:'+S.vol.phone; else alert('Add volunteer details first.'); }
+function callVol(){ if(S.vol.phone) location.href='tel:'+S.vol.phone; else alert(t('addVolFirst')); }
 function renderVol(){
-  $('#volInfo').innerHTML = S.vol.name ? `<b>${esc(S.vol.name)}</b> · ${esc(S.vol.phone)}<br>Next visit: <b>${esc(S.vol.next||'not set')}</b>` : 'No volunteer assigned yet.';
+  $('#volInfo').innerHTML = S.vol.name
+    ? `<b>${esc(S.vol.name)}</b> · ${esc(S.vol.phone)}<br>${t('nextVisit')}: <b>${esc(S.vol.next||t('notSet'))}</b>`
+    : t('noVol');
   $('#logList').innerHTML = S.logs.slice().reverse().map(l=>
-    `<div class="card"><b>${new Date(l.t).toLocaleDateString('en-IN',{dateStyle:'medium'})}</b> · ${esc(l.mood)}<br>BP: ${esc(l.bp||'-')}<br>${esc(l.note||'')}</div>`
+    `<div class="card"><b>${new Date(l.t).toLocaleDateString(LOC[S.lang],{dateStyle:'medium'})}</b> · ${esc(T.en[l.mood]?t(l.mood):l.mood)}<br>${t('bp')}: ${esc(l.bp||'-')}<br>${esc(l.note||'')}</div>`
   ).join('');
 }
 function addLog(){
   S.logs.push({t:Date.now(), bp:$('#vBP').value, mood:$('#vMood').value, note:$('#vNote').value});
-  save(); $('#vBP').value=''; $('#vNote').value=''; renderVol(); alert('Visit update saved.');
+  save(); $('#vBP').value=''; $('#vNote').value=''; renderVol(); alert(t('visitSaved'));
 }
 
-/* ---------- TOGETHER: day camps and friends ---------- */
-const EVENTS = [
-  {id:'e1', title:'Sunday Smiles Day Camp', when:'Every Sunday, 10:00 AM', place:'Community Hall', about:'Games, music, tea and conversation'},
-  {id:'e2', title:'Learn-a-Skill Morning', when:'Every Wednesday, 10:00 AM', place:'Local school (with children)', about:'Craft, phone skills, storytelling with kids'},
-  {id:'e3', title:'Talent and Talk Evening', when:'Every Friday, 5:00 PM', place:'Community Hall', about:'Sing, perform, share stories'}
-];
+/* ---------- TOGETHER ---------- */
+const EVENTS = ['e1','e2','e3'];
+const EV_DAY = {e1:[0,10], e2:[3,10], e3:[5,17]};
 function nextWeekday(day,h){ const d=new Date(); d.setHours(h,0,0,0); d.setDate(d.getDate()+((day+7-d.getDay())%7||7)); return toLocalISO(d); }
 function joinEvent(id){
   if(S.joined.includes(id)) return;
   S.joined.push(id);
-  const map2={e1:[0,10],e2:[3,10],e3:[5,17]}, ev=EVENTS.find(e=>e.id===id), [day,h]=map2[id];
-  S.reminders.push({id:uid(),icon:'👥',title:ev.title+' at '+ev.place,when:nextWeekday(day,h-1),rep:'weekly'});
-  save(); renderTog(); renderRem(); alert('You joined! A weekly reminder was added.');
+  const [day,h] = EV_DAY[id];
+  S.reminders.push({id:uid(),key:id+'t',note:'',when:nextWeekday(day,h-1),rep:'weekly'});
+  save(); renderTog(); renderRem(); alert(t('joinedMsg'));
 }
 function addFriend(){
-  const n=prompt('Friend name'); if(!n) return; const p=prompt('Friend phone (with +91)'); if(!p) return;
+  const n=prompt(t('friendName')); if(!n) return; const p=prompt(t('friendPhone')); if(!p) return;
   S.friends.push({id:uid(),name:n.trim(),phone:p.trim()}); save(); renderTog();
 }
 function delFriend(id){ S.friends=S.friends.filter(f=>f.id!==id); save(); renderTog(); }
 function renderTog(){
   $('#eventList').innerHTML = EVENTS.map(e=>
-    `<div class="card"><b>${e.title}</b><br>🕙 ${e.when}<br>📍 ${e.place}<br>${e.about}
-     <button class="btn ${S.joined.includes(e.id)?'grey':'green'}" onclick="joinEvent('${e.id}')">${S.joined.includes(e.id)?'✔ Joined':'Join'}</button></div>`
+    `<div class="card"><b>${t(e+'t')}</b><br>🕙 ${t(e+'w')}<br>📍 ${t(e+'p')}<br>${t(e+'a')}
+     <button class="btn ${S.joined.includes(e)?'soft':''}" onclick="joinEvent('${e}')">${S.joined.includes(e)?t('joined'):t('join')}</button></div>`
   ).join('');
   $('#friendList').innerHTML = S.friends.map(f=>
-    `<div class="card"><b>${esc(f.name)}</b><br>
-     <a class="btn" href="tel:${esc(f.phone)}">📞 Call</a>
-     <a class="btn green" href="https://wa.me/${esc(f.phone.replace(/\D/g,''))}">💬 WhatsApp</a>
-     <button class="small" onclick="delFriend('${f.id}')">Remove</button></div>`
-  ).join('') || '<p>Add friends you meet at the Day Camps.</p>';
+    `<div class="card"><b>${esc(f.name)}</b>
+     <a class="btn" href="tel:${esc(f.phone)}">${t('call')}</a>
+     <a class="btn orange" href="https://wa.me/${esc(f.phone.replace(/\D/g,''))}">${t('whatsapp')}</a>
+     <button class="small" onclick="delFriend('${f.id}')">${t('remove')}</button></div>`
+  ).join('') || `<p>${t('noFriends')}</p>`;
 }
 
 /* ---------- START ---------- */
 document.body.classList.toggle('big', S.big);
-renderContacts(); renderOk(); renderRem(); renderVol(); renderTog(); applyLang();
+applyLang();
 startWatch();
 setInterval(checkReminders, 15000); checkReminders();
-</script>
-<script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(e => console.log('SW failed', e));
 }
