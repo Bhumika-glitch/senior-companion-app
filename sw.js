@@ -1,4 +1,4 @@
-const CACHE = 'saathi-v3';
+const CACHE = 'saathi-v4';
 const CORE = [
   './', './index.html', './manifest.json', './icon.svg',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
